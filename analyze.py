@@ -28,8 +28,8 @@ class Analyze:
 
     def load(self):
         cursor = self.db.cursor()
+        #  command = 'SELECT * FROM post_v1 LIMIT 50'
         command = 'SELECT * FROM post_v1'
-        #  command = 'SELECT * FROM post_v1'
         cursor.execute(command)
         self.result = cursor.fetchall()
 
@@ -80,34 +80,52 @@ class Analyze:
         #  print(i, j, k, l)
 
     def doAnalyze(self):
-        for key, posts in self.lv5.items():
-            vectorizer = TfidfVectorizer(stop_words=stop_words, token_pattern="(?u)\\b\\w\\w+\\b")
-            # all
-            #  X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[2], post[3], post[6]]), posts)))
-            # claim
-            X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[2]]), posts)))
-            def mapfn(a1):
-                zipped = list(zip(vectorizer.get_feature_names(), a1))
-                res = sorted(zipped, key = lambda x: x[1])
-                a, b = zip(*res[-10:])
-                return a
-            mapped = list(map(mapfn, X.toarray()))
-            r = pd.DataFrame(mapped, columns=list(map(lambda p: p, range(1, 11))), index=list(map(lambda x: x[0], posts)))
-            print(key)
-            for i in range(len(mapped)):
-                print(
-                    list(posts)[i][0] + ',',
-                    mapped[i][0] + ',',
-                    mapped[i][1] + ',',
-                    mapped[i][2] + ',',
-                    mapped[i][3] + ',',
-                    mapped[i][4] + ',',
-                    mapped[i][5] + ',',
-                    mapped[i][6] + ',',
-                    mapped[i][7] + ',',
-                    mapped[i][8] + ',',
-                    mapped[i][9] + ','
-                )
+        #  for key, posts in self.lv5.items():
+        key = 'H01L 21'
+        posts = self.lv5[key]
+
+        #  if len(posts) < 10: continue
+        vectorizer = CountVectorizer(stop_words=stop_words, token_pattern="(?u)\\b\\w\\w+\\b")
+        transformer = TfidfTransformer(smooth_idf=True)
+        # all
+        #  X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[2], post[3], post[6]]), posts)))
+        # claim
+        X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[3]]), posts)))
+        Z = transformer.fit_transform(X)
+
+        #word count
+        def mapfn(a1, a2):
+            zipped = list(zip(vectorizer.get_feature_names(), a1, a2))
+            res = sorted(zipped, reverse=True, key = lambda x: x[2])
+            a, b, c = zip(*res[:10])
+            return list(map(lambda aa,cc: aa + '(' + str(cc) + ')', a, c))
+
+        #TFIDF
+        def mapfn1(a1):
+            zipped = list(zip(vectorizer.get_feature_names(), a1))
+            res = sorted(zipped, reverse=True, key = lambda x: x[1])
+            a, b = zip(*res[:10])
+            return a
+        #word count
+        mapped = list(map(mapfn, Z.toarray(), X.toarray()))
+        #TFIDF
+        #  mapped = list(map(mapfn1, Z.toarray(), X.toarray()))
+        print(key)
+        print('id, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10')
+        for i in range(len(mapped)):
+            print(
+                list(posts)[i][0].replace(',', '') + ',',
+                mapped[i][0] + ',',
+                mapped[i][1] + ',',
+                mapped[i][2] + ',',
+                mapped[i][3] + ',',
+                mapped[i][4] + ',',
+                mapped[i][5] + ',',
+                mapped[i][6] + ',',
+                mapped[i][7] + ',',
+                mapped[i][8] + ',',
+                mapped[i][9] + ','
+            )
 
 analyzer = Analyze()
 
