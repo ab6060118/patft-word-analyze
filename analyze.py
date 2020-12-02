@@ -7,13 +7,8 @@ import pandas as pd
 import threading as td
 from queue import Queue
 
-stop_words = [
-    'an', 'and', 'as', 'at',
-    'by',
-    'for',
-    'in', 'is',
-    'of', 'on', 'or',
-    'the', 'to']
+with open('./stop_words','r') as fp:
+    stop_words = fp.read().splitlines()
 
 class Analyze:
     db = None
@@ -124,8 +119,8 @@ class Analyze:
         #  mapped = list(map(mapfn, Z.toarray(), X.toarray()))
         #TFIDF
         mapped = list(map(mapfn1, X.toarray()))
-        print(key)
-        print('id, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10')
+        #  print(key)
+        #  print('id, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10')
         for i in range(len(mapped)):
             print(
                 list(posts)[i][0].replace(',', '') + ',',
