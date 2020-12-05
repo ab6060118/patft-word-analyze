@@ -1,11 +1,10 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
+import nltk
 import re
 import MySQLdb
 import pandas as pd
-import threading as td
-from queue import Queue
 
 with open('./stop_words','r') as fp:
     stop_words = fp.read().splitlines()
@@ -24,7 +23,7 @@ class Analyze:
 
     def load(self):
         cursor = self.db.cursor()
-        #  command = 'SELECT * FROM post_v1 LIMIT 500'
+        #  command = 'SELECT * FROM post_v1 LIMIT 150'
         command = 'SELECT * FROM post_v1'
         cursor.execute(command)
         self.result = cursor.fetchall()
@@ -80,6 +79,9 @@ class Analyze:
         key = 'H01L 21'
         posts = self.lv5[key]
 
+        stripedPosts = map(lambda post: ' '.join(map(lambda tern: tern[0],filter(lambda tern: tern[1] == 'NN', nltk.pos_tag(post[2].split())))), posts)
+
+        #  print(stripedPosts)
         #  if len(posts) < 10: continue
         vectorizer = TfidfVectorizer(stop_words=stop_words, token_pattern="(?u)\\b\\w\\w+\\b")
         #  vectorizer = CountVectorizer(stop_words=stop_words, token_pattern="(?u)\\b\\w\\w+\\b")
@@ -87,7 +89,7 @@ class Analyze:
         # all
         #  X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[2], post[3], post[6]]), posts)))
         # claim
-        X = vectorizer.fit_transform(list(map(lambda post: ' '.join([post[3]]), posts)))
+        X = vectorizer.fit_transform(stripedPosts)
         #  Z = transformer.fit_transform(X)
         feature_names = vectorizer.get_feature_names()
 
@@ -112,15 +114,23 @@ class Analyze:
             zipped = list(zip(feature_names, a1))
             res = sorted(zipped, reverse=True, key = lambda x: x[1])
             a, b = zip(*res[:10])
-            return a
+            result = []
+            i = 0
+            for bb in b:
+                if bb == 0:
+                    result.append('---')
+                else:
+                    result.append(a[i])
+                i = i + 1
+            return result
         #appear in doc
 
         #word count
         #  mapped = list(map(mapfn, Z.toarray(), X.toarray()))
         #TFIDF
         mapped = list(map(mapfn1, X.toarray()))
-        #  print(key)
-        #  print('id, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10')
+        print(key)
+        print('id, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10')
         for i in range(len(mapped)):
             print(
                 list(posts)[i][0].replace(',', '') + ',',
