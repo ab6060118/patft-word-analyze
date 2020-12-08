@@ -5,6 +5,7 @@ import nltk
 import re
 import MySQLdb
 import pandas as pd
+import csv
 
 # 讀取 stop_words
 with open('./stop_words','r') as fp:
@@ -47,7 +48,7 @@ class Analyze:
         # 將專利當中詞性不等於名詞的單字剔除
         stripedPosts = map(lambda post: ' '.join(map(lambda tern: tern[0],filter(lambda tern: tern[1] == 'NN', nltk.pos_tag(post[2].split())))), posts)
 
-        vectorizer = TfidfVectorizer(stop_words=stop_words, token_pattern="(?u)\\b\\w\\w+\\b")
+        vectorizer = TfidfVectorizer(stop_words=stop_words, token_pattern=r'\w+')
         X = vectorizer.fit_transform(stripedPosts)
         feature_names = vectorizer.get_feature_names()
 
@@ -87,14 +88,30 @@ class Analyze:
                 mapped[i][9] + ','
             )
 
+def wordCount():
+    with open('./H01L_21_abstract_top10.csv','r',newline='') as fp:
+        d = dict()
+        rows = list(csv.reader(fp))
+        for row in rows[1:]:
+            for word in row[1:]:
+                if word == '' or word == '---': continue
+                if word not in d:
+                    d[word] = 1
+                else:
+                    d[word] = d[word] + 1
+        for key, value in d.items():
+            print(key+','+str(value))
+
 
 analyzer = Analyze()
 
-# 讀取資料庫
-analyzer.load()
-# 將專利分類
-analyzer.classification()
-# 針對類別 H01L 21 進行 TFIDF 分析
-analyzer.doAnalyze()
-# 將結果輸出到畫面
-analyzer.output()
+#  讀取資料庫
+#  analyzer.load()
+#  #  將專利分類
+#  analyzer.classification()
+#  #  針對類別 H01L 21 進行 TFIDF 分析
+#  analyzer.doAnalyze()
+#  #  將結果輸出到畫面
+#  analyzer.output()
+
+wordCount()
