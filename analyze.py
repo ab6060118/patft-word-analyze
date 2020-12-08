@@ -105,13 +105,13 @@ def wordCount():
 
 analyzer = Analyze()
 
-#  #  讀取資料庫
-#  analyzer.load()
-#  #  將專利分類
-#  analyzer.classification()
-#  #  針對類別 H01L 21 進行 TFIDF 分析
-#  analyzer.doAnalyze()
-#  #  將結果輸出到畫面
-#  analyzer.output()
+#  讀取資料庫
+analyzer.load()
+#  將專利分類
+analyzer.classification()
+#  針對類別 H01L 21 進行 TFIDF 分析
+analyzer.doAnalyze()
+#  將結果輸出到畫面
+analyzer.output()
 
-wordCount()
+#  wordCount()
