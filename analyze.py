@@ -85,7 +85,7 @@ class Analyze:
                 mapped[i][6] + ',' +
                 mapped[i][7] + ',' +
                 mapped[i][8] + ',' +
-                mapped[i][9] + ','
+                mapped[i][9]
             )
 
 def wordCount():
@@ -105,7 +105,7 @@ def wordCount():
 
 analyzer = Analyze()
 
-#  讀取資料庫
+#  #  讀取資料庫
 #  analyzer.load()
 #  #  將專利分類
 #  analyzer.classification()
