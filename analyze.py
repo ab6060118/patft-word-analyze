@@ -29,7 +29,7 @@ class Analyze:
     def load(self):
         cursor = self.db.cursor()
         # 選取所有資料
-        command = 'SELECT * FROM post_v1'
+        command = 'SELECT United_States_Patent, abstract FROM post_v1'
         cursor.execute(command)
         self.result = cursor.fetchall()
 
@@ -69,6 +69,14 @@ class Analyze:
 
         self.analyzeed = list(map(mapfn1, X.toarray()))
 
+    def tfidf(self):
+        posts = self.result
+        vectorizer = TfidfVectorizer(stop_words=stop_words, token_pattern=r'\w+')
+        X = vectorizer.fit_transform(map(lambda post: post[1], posts))
+        r = pd.DataFrame(X.toarray(),columns=vectorizer.get_feature_names(), index=map(lambda post: post[0], posts))
+        r.to_csv('./tfidf1.csv')
+
+
     def output(self):
         mapped = self.analyzeed
         posts = self.lv5[self.key]
@@ -102,16 +110,27 @@ def wordCount():
         for key, value in d.items():
             print(key+','+str(value))
 
+def search(keyword):
+    r = pd.read_csv('./tfidf.csv', index_col=False, usecols=['id', keyword])
+    print(r.sort_values(by=keyword,ascending=False)[:10])
 
 analyzer = Analyze()
 
 #  讀取資料庫
-analyzer.load()
+#  analyzer.load()
 #  將專利分類
-analyzer.classification()
+#  analyzer.classification()
 #  針對類別 H01L 21 進行 TFIDF 分析
-analyzer.doAnalyze()
+#  analyzer.doAnalyze()
 #  將結果輸出到畫面
-analyzer.output()
+#  analyzer.output()
 
 #  wordCount()
+
+#  讀取資料庫
+#  analyzer.load()
+#  tfidf analyze
+#  analyzer.tfidf()
+
+#  search
+search('semiconductor')
