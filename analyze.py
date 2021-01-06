@@ -112,7 +112,12 @@ def wordCount():
 
 def search(keyword):
     r = pd.read_csv('./tfidf.csv', index_col=False, usecols=['id', keyword])
-    print(r.sort_values(by=keyword,ascending=False)[:10])
+    r.sort_values(by=keyword,ascending=False).to_csv('./tfidf_search.csv')
+
+def doubleSearch(keyword, k2):
+    r = pd.read_csv('./tfidf.csv', index_col=False, usecols=['id', keyword, k2])
+    r['sum'] = r[keyword] + r[k2]
+    r.sort_values(by='sum',ascending=False).to_csv('./tfidf_search_'+keyword+'_'+k2+'.csv')
 
 analyzer = Analyze()
 
@@ -133,4 +138,6 @@ analyzer = Analyze()
 #  analyzer.tfidf()
 
 #  search
-search('semiconductor')
+#  search('semiconductor')
+
+doubleSearch('semiconductor', 'device')
